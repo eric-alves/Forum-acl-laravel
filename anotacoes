@@ -1,0 +1,16 @@
+# ACL utilizando Laravel
+
+## Channels (canais de fórum)
+    -> Threads (tópicos)
+    -> Replies (respostas e interações)
+
+## Users (usuários da aplicação)
+    -> Roles (papéis)
+
+## Roles (registro dos papéis)
+
+## Resources (recursos mapeados do sistema)
+    -> Ligado com Roles
+
+Roles e Resources será manipulado pelo fórum para
+montarmos as permissões com base nos papeis.
