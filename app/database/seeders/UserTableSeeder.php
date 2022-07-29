@@ -13,8 +13,8 @@ class UserTableSeeder extends Seeder
      */
     public function run()
     {
-        factory(\App\Model\User::class, 5)->create()->each(function($user){
-            $thread = factory(\App\Model\Thread::class, 3)->make();
+        \App\Models\User::factory()->count(5)->create()->each(function($user){
+            $thread = \App\Models\Thread::factory()->count(3)->make();
             $user->threads()->saveMany($thread);
         });
     }
