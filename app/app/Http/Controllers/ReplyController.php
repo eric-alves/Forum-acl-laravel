@@ -49,8 +49,14 @@ class ReplyController extends Controller
 
             $thread = Thread::find($request->thread_id);
             $thread->replies()->create($reply);
+            flash("Resposta criada com sucesso!")->success();
+
             return redirect()->back();
         } catch (\Exception $e) {
+            $message = env('APP_DEBUG') 
+                ? $e->getMessage()
+                : "Erro ao postar a resposta!";
+            flash($message)->warning();
             return redirect()->back();
         }
     }
