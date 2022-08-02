@@ -3,10 +3,16 @@
 namespace App\Http\Controllers;
 
 use App\Models\Reply;
+use App\Models\Thread;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class ReplyController extends Controller
 {
+    public function __construct(Reply $reply)
+    {
+        $this->reply = $reply;
+    }
     /**
      * Display a listing of the resource.
      *
@@ -35,7 +41,18 @@ class ReplyController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        try {
+            $user = User::find(1);
+            $reply = $request->all();
+            $reply['user_id'] = $user->id;
+
+
+            $thread = Thread::find($request->thread_id);
+            $thread->replies()->create($reply);
+            return redirect()->back();
+        } catch (\Exception $e) {
+            return redirect()->back();
+        }
     }
 
     /**

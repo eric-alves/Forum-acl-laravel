@@ -19,6 +19,7 @@
 
     <!-- Styles -->
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
 </head>
 
 <body>
@@ -82,6 +83,8 @@
 
         <main class="py-4">
             <div class="container">
+                @include('flash::message')
+
                 @yield('content')
             </div>
         </main>

@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Thread;
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class ThreadController extends Controller
 {
@@ -17,7 +19,7 @@ class ThreadController extends Controller
      */
     public function index()
     {
-        $threads = $this->thread->paginate(20);
+        $threads = $this->thread->orderBy("created_at", "DESC")->paginate(20);
 
         return view("threads.index", compact("threads"));
     }
@@ -41,33 +43,46 @@ class ThreadController extends Controller
     public function store(Request $request)
     {
         try {
-            $this->thread->create($request->all());
-            dd("Tópico criado com sucesso!");
+            $user = User::find(1);
+            $thread = $request->all();
+            $thread['slug'] = Str::slug($thread['title']);
+            $thread['user_id'] = $user->id;
+            $thread = $this->thread->create($thread);
+            flash("Tópico criado com sucesso!")->success();
+            return redirect()->route("threads.show", $thread->slug);
         } catch (\Exception $e) {
-            dd($e->getMessage());
+            $message = env('APP_DEBUG') 
+                ? $e->getMessage()
+                : "Erro ao precessar a requisição!";
+            flash($message)->warning();
+            return redirect()->back();
         }
     }
 
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param  string  $thread
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show($thread)
     {
-        return redirect()->route("threads.edit", $id);
+        $thread = $this->thread->whereSlug($thread)->first();
+
+        if (!$thread) return redirect()->route('threads.index');
+
+        return view("threads.show", compact("thread"));
     }
 
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int id
+     * @param  string  $thread
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit($thread)
     {
-        $thread = $this->thread->find($id);
+        $thread = $this->thread->whereSlug($thread)->first();
         return view("threads.edit", compact("thread"));
     }
 
@@ -75,34 +90,44 @@ class ThreadController extends Controller
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  int $id
+     * @param  string $thread
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, $thread)
     {
         try {
-            $thread = $this->thread->find($id);
+            $thread = $this->thread->whereSlug($thread)->first();
             $thread->update($request->all());
-            dd("Tópico editado com sucesso!");
+            flash("Tópico editado com sucesso!")->success();
+            return redirect()->route("threads.show", $thread->slug);
         } catch (\Exception $e) {
-            dd($e->getMessage());
+            $message = env('APP_DEBUG') 
+                ? $e->getMessage()
+                : "Erro ao precessar a requisição!";
+            flash($message)->warning();
+            return redirect()->back();
         }
     }
 
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int $id
+     * @param  string $thread
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy($thread)
     {
         try {
-            $thread = $this->thread->find($id);
+            $thread = $this->thread->whereSlug($thread)->first();
             $thread->delete();
-            dd("Tópico removido com sucesso!");
+            flash("Tópico removido com sucesso!")->success();
+            return redirect()->route("threads.index");
         } catch (\Exception $e) {
-            dd($e->getMessage());
+            $message = env('APP_DEBUG') 
+                ? $e->getMessage()
+                : "Erro ao precessar a requisição!";
+            flash($message)->warning();
+            return redirect()->back();
         }
     }
 }
