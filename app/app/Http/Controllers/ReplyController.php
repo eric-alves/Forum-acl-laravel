@@ -6,6 +6,7 @@ use App\Models\Reply;
 use App\Models\Thread;
 use App\Models\User;
 use Illuminate\Http\Request;
+use App\Http\Requests\ReplyRequest;
 
 class ReplyController extends Controller
 {
@@ -20,7 +21,8 @@ class ReplyController extends Controller
      */
     public function index()
     {
-        //
+        $replies = $this->reply->with("thread")->get();
+        return response()->json($replies, 200);
     }
 
     /**
@@ -36,10 +38,10 @@ class ReplyController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  ReplyRequest $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(ReplyRequest $request)
     {
         try {
             $user = User::find(1);

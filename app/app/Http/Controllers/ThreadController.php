@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Channel;
 use App\Models\Thread;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use App\Http\Requests\ThreadRequest;
 
 class ThreadController extends Controller
 {
@@ -15,11 +18,18 @@ class ThreadController extends Controller
     /**
      * Display a listing of the resource.
      *
+     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request, Channel $channel)
     {
-        $threads = $this->thread->orderBy("created_at", "DESC")->paginate(20);
+        $channelParam = $request->channel;
+
+        if ($channelParam !== null) {
+            $threads = $channel->whereSlug($channelParam)->first()->threads()->paginate(10);
+        } else {
+            $threads = $this->thread->orderBy("created_at", "DESC")->paginate(20);
+        }
 
         return view("threads.index", compact("threads"));
     }
@@ -29,18 +39,20 @@ class ThreadController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
+    public function create(Channel $channel)
     {
-        return view("threads.create");
+        return view("threads.create", [
+            "channels" => $channel->all()
+        ]);
     }
 
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Http\Requests\ThreadRequest  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(ThreadRequest $request)
     {
         try {
             $user = User::find(1);
@@ -89,11 +101,11 @@ class ThreadController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Http\Requests\ThreadRequest  $request  $request
      * @param  string $thread
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $thread)
+    public function update(ThreadRequest $request, $thread)
     {
         try {
             $thread = $this->thread->whereSlug($thread)->first();

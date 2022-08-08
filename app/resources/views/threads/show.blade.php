@@ -27,20 +27,22 @@
             </div>
             <hr>
         </div>
-        <div class="col-12">
-            <h3>Resposta</h3>
-            <hr>
-            @foreach($thread->replies as $reply)
-                <div class="card" style="margin-bottom: 15px;">
-                    <div class="card-body">
-                        {{$reply->reply}}
+        @if($thread->replies->count())
+            <div class="col-12">
+                <h3>Resposta</h3>
+                <hr>
+                @foreach($thread->replies as $reply)
+                    <div class="card" style="margin-bottom: 15px;">
+                        <div class="card-body">
+                            {{$reply->reply}}
+                        </div>
+                        <div class="card-footer">
+                            Respondido por {{$reply->user->name}} à {{$reply->created_at->diffForHumans()}}
+                        </div>
                     </div>
-                    <div class="card-footer">
-                        Respondido por {{$reply->user->name}} à {{$reply->created_at->diffForHumans()}}
-                    </div>
-                </div>
-            @endforeach
-        </div>
+                @endforeach
+            </div>
+        @endif
         <div class="col-12">
             <hr>
             <form action="{{route('replies.store')}}" method="post">
@@ -48,7 +50,12 @@
                 <input type="hidden" name="thread_id" value="{{$thread->id}}">
                 <div class="form-group">
                     <label>Responder</label>
-                    <textarea name="reply" id="" cols="30" rows="5" class="form-control"></textarea>
+                    <textarea name="reply" id="" cols="30" rows="5" class="form-control @error('reply') is-invalid @enderror"></textarea>
+                    @error('reply')
+                        <div class="invalid-feedback">
+                            {{$message}}
+                        </div>
+                    @enderror
                 </div>
 
                 <button type="submit" class="btn btn-success">Responder</button>

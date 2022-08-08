@@ -20,6 +20,8 @@ Route::get('/', function () {
 });
 
 Route::resource("threads", "App\Http\Controllers\ThreadController");
+Route::resource("channels", "App\Http\Controllers\ChannelController");
+Route::resource("replies", "App\Http\Controllers\ReplyController");
 Route::post('replies/store', "App\Http\Controllers\ReplyController@store")->name('replies.store');
 
 Auth::routes();
